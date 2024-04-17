@@ -1,9 +1,74 @@
 # Nome do Aluno: Lucas Siqueira dos Santos
 # Curso: Analise e desenvolvimento de sistemas
-# Atividade Somativa 1 de Raciocinio computacional
+# Atividade Somativa 1 de Raciocínio computacional
 
 class Estudantes:
-    list_estudantes = []  # Lista para armazenar os nomes dos estudantes
+    list_estudantes = {}  # Dicionário para armazenar os estudantes cadastrados
+
+    @staticmethod
+    def adicionar_estudantes():
+        """
+        Método estático para adicionar novos estudantes ao dicionário.
+        """
+        try:
+            id_aluno = int(input('Digite o código do aluno: '))
+            # Verifica se o código do aluno já existe no dicionário
+            if id_aluno in Estudantes.list_estudantes:
+                print('Código já existe')
+                Estudantes.adicionar_estudantes()
+                return
+        except ValueError:
+            print('Valor inválido. Por favor, insira um número inteiro para o código do aluno.')
+            Estudantes.adicionar_estudantes()
+            return  # Interrompe a execução após a chamada recursiva
+        nome_aluno = input('Digite o nome do aluno: ').strip()
+        cpf_aluno = input('Digite o CPF do aluno: ').strip()
+        # Verifica se o nome e o CPF são válidos antes de adicionar ao dicionário
+        if nome_aluno and cpf_aluno and not nome_aluno.isdigit():
+            Estudantes.list_estudantes[id_aluno] = {'nome': nome_aluno, 'cpf': cpf_aluno}
+        else:
+            print('Dados inválidos, digite novamente.')
+            Estudantes.adicionar_estudantes()
+            return
+
+    @staticmethod
+    def editar_estudante():
+        """
+        Método estático para editar informações de um estudante existente.
+        """
+        try:
+            id_aluno = int(input('Digite o código do aluno que deseja editar: '))
+        except ValueError:
+            print('Valor inválido. Por favor, insira um número inteiro para o código do aluno.')
+            Estudantes.editar_estudante()
+            return  # Interrompe a execução após a chamada recursiva
+        if id_aluno in Estudantes.list_estudantes:
+            nome_aluno = input('Digite o novo nome do aluno: ').strip()
+            cpf_aluno = input('Digite o novo CPF do aluno: ').strip()
+            Estudantes.list_estudantes[id_aluno] = {'nome': nome_aluno, 'cpf': cpf_aluno}
+        else:
+            print('Código não cadastrado')
+            Estudantes.editar_estudante()
+            return
+
+    @staticmethod
+    def excluir_estudante():
+        """
+        Método estático para excluir um estudante do dicionário.
+        """
+        try:
+            id_aluno = int(input('Digite o código do aluno que deseja excluir: '))
+        except ValueError:
+            print('Valor inválido. Por favor, insira um número inteiro para o código do aluno.')
+            Estudantes.excluir_estudante()
+            return  # Interrompe a execução após a chamada recursiva
+        if id_aluno in Estudantes.list_estudantes:
+            Estudantes.list_estudantes.pop(id_aluno)
+            print('Aluno excluído com sucesso!')
+        else:
+            print('Código não cadastrado')
+            Estudantes.excluir_estudante()
+            return
 
     @staticmethod
     def listar_estudantes():
@@ -15,11 +80,11 @@ class Estudantes:
         else:
             print("")
             print("Alunos cadastrados: ")
-            count = 0
-            for aluno in Estudantes.list_estudantes:  # for para listar os alunos cadastrados
-                count += +1
+            for id_aluno, info_aluno in Estudantes.list_estudantes.items():
+                nome = info_aluno['nome']
+                cpf = info_aluno['cpf']
                 print("")
-                print(f"{count} - {aluno}")
+                print(f"Código: {id_aluno} - Nome: {nome} - CPF: {cpf}")
             print("")
 
 
@@ -29,14 +94,6 @@ class MainMenu:
                           " (3) : Listar \n"
                           " (4) : Deletar \n"
                           " (5) : Voltar \n")
-
-    # @staticmethod
-    # def validar_input(texto):
-    #     """
-    #     Método estático para validar a entrada de texto.
-    #     """
-    #     texto = ' '.join(texto.split())
-    #     return texto
 
     @staticmethod
     def set_menu(option):
@@ -86,25 +143,32 @@ class MainMenu:
                         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                         # Exibe mensagem relacionada à opção selecionada
                         print(MainMenu.set_menu(selected_menu))
+                        print('')
                         # Exibe opções de gerenciamento de estudantes
                         print(MainMenu.options_management)
-                        selected_menu_management = input("Digite a opção de menu desejada: ")
-                        # Verifica se a entrada é um número e se está dentro do intervalo de opções
-                        if not selected_menu_management.isdigit() or int(selected_menu_management) > 5:
+                        try:
+                            selected_menu_management = int(input("Digite a opção de menu desejada: "))
+                        except ValueError:
+                            print('Valor inválido, digite novamente.')
+                            continue
+                            # Verifica se a entrada está dentro do intervalo de opções
+                        if selected_menu_management > 5:
                             continue
                         # Se a opção selecionada for adicionar um aluno (opção 1)
-                        if int(selected_menu_management) == 1:
-                            # Solicita o nome do aluno ao usuário
-                            nome_aluno = input('Digite o nome do aluno: ').strip()
-                            if nome_aluno:
-                                # Adiciona o nome do aluno à lista de estudantes
-                                Estudantes.list_estudantes.append(nome_aluno)
+                        if selected_menu_management == 1:
+                            Estudantes.adicionar_estudantes()  # Chama função que adiciona aluno no dicionário
+                        # Se a opção for 2 chama função para editar estudantes
+                        elif selected_menu_management == 2:
+                            Estudantes.editar_estudante()  # Chama função para editar estudantes
                         # Se a opção selecionada for listar os estudantes (opção 3)
-                        elif int(selected_menu_management) == 3:
+                        elif selected_menu_management == 3:
                             # Chama o método para listar os estudantes
                             Estudantes.listar_estudantes()
+                        # Se a opção for 4, chama função para apagar um estudante
+                        elif selected_menu_management == 4:
+                            Estudantes.excluir_estudante()
                         # Se a opção selecionada for para voltar ao menu principal (opção 5)
-                        elif int(selected_menu_management) == 5:
+                        elif selected_menu_management == 5:
                             # Para o 2 while e volta para o menu principal
                             break
                         else:
